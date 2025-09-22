@@ -5,7 +5,7 @@ import { LocationEditIcon } from "lucide-react";
 export async function getJobs(token, {location, company_id, searchQuery}) {
     const supabase = await supabaseClient(token);  
 
-    let query = supabase.from("jobs").select("*");
+    let query = supabase.from("jobs").select("*, company:companies(name, logo_url) , saved: saved_jobs(id   )");
 
     if(location){
         query = query.eq("location", location)
