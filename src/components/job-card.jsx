@@ -23,6 +23,9 @@ const JobCard = ({
         alreadySaved: saved,
     });
 
+    
+    
+
     const { user } = useUser();
 
     const handleSaveJob = async () => {
@@ -38,7 +41,7 @@ const JobCard = ({
     }, [savedJob])
 
 
-    return <Card>
+    return <Card className="flex flex-col">
         <CardHeader>
             <CardTitle className='flex justify-between Font-bold'>
                 {job.title}
@@ -64,7 +67,7 @@ const JobCard = ({
         </CardContent>
 
         <CardFooter className="flex gap-2">
-            <Link to={`/job/*{job.id}`} className='flex-1'>
+            <Link to={`/job/${job.id}`} className='flex-1'>
                 <Button variant="secondary" className='w-full'>
                     More Details
                 </Button>
