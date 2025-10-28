@@ -10,9 +10,11 @@ import useFetch from "@/hooks/use-fetch";
 import { getCompanies } from "@/api/apiCompanies";
 import { useUser } from "@clerk/clerk-react";
 import { BarLoader } from "react-spinners";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import MDEditor from "@uiw/react-md-editor";
 import { Button } from "@/components/ui/button";
+import { addNewJob } from "@/api/apiJobs";
+import AddCompanyDrawer from "@/components/add-company-drawer";
 
 
 const schema = z.object({
@@ -27,6 +29,7 @@ const schema = z.object({
 const PostJob = () => {
 
   const { isLoaded, user } = useUser();
+  const navigate = useNavigate();
 
   // if (isLoaded){
   //   // console.log(user.unsafeMetadata?.role);
@@ -57,6 +60,31 @@ const PostJob = () => {
     if (isLoaded) fnCompanies();
   }, [isLoaded])
 
+
+  const {
+    loading: loadingCreateJob,
+    error: errorCreateJob,
+    data: dataCreateJob,
+    fn: fnCreateJob,
+  } = useFetch(addNewJob);
+
+  const onSubmit = (data) => {
+    fnCreateJob({
+      ...data,
+      recruiter_id: user.id,
+      isOpen: true,
+    });
+  }
+
+  useEffect(() => {
+    if (dataCreateJob?.length > 0) {
+      navigate("/jobs");
+    }
+
+  }, [loadingCreateJob])
+
+
+
   if (!isLoaded || loadingCompanies) {
     return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />
   }
@@ -71,7 +99,7 @@ const PostJob = () => {
         Post a Job
       </h1>
 
-      <form className="flex flex-col gap-4 p-4 pb-0" >
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 p-4 pb-0" >
         <Input placeholder="Job Title" {...register("title")} />
         {errors.title && <p className="text-red-500">{errors.title.message}</p>}
 
@@ -138,6 +166,8 @@ const PostJob = () => {
           />
 
           {/* Add Company Drawer */}
+          <AddCompanyDrawer fetchCompanies={fnCompanies} />
+
 
         </div>
         {errors.location && (
@@ -163,7 +193,13 @@ const PostJob = () => {
           <p className="text-red-500">{errors.requirements.message}</p>
         )}
 
-      <Button type="submit" variant="blue" size="lg" className="mt-2">Submit</Button>
+        {errorCreateJob?.message && (
+          <p className="text-red-500">{errorCreateJob?.message}</p>
+        )}
+
+        {loadingCreateJob && <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />}
+
+        <Button type="submit" variant="blue" size="lg" className="mt-2">Submit</Button>
       </form>
 
 
